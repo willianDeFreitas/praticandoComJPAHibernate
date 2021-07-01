@@ -8,6 +8,7 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -27,7 +28,7 @@ public class Pedido {
 	@Column(name = "valor_total")
 	private BigDecimal valorTotal = BigDecimal.ZERO;
 	
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY) //lazy só carrega se fizer o acesso, melhora performance
 	private Cliente cliente;
 
 	//para relacionamento bidirecional usamos o mappedBy do lado one e o cascade all para adicionar
@@ -35,6 +36,14 @@ public class Pedido {
 	@OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
 	private List<ItemPedido> itens = new ArrayList<>();
 	
+	public List<ItemPedido> getItens() {
+		return itens;
+	}
+
+	public void setItens(List<ItemPedido> itens) {
+		this.itens = itens;
+	}
+
 	public Pedido() {}
 	
 	public Pedido( Cliente cliente) {

@@ -1,7 +1,6 @@
 package br.com.alura.loja.testes;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 import javax.persistence.EntityManager;
 
@@ -15,41 +14,15 @@ import br.com.alura.loja.modelo.ItemPedido;
 import br.com.alura.loja.modelo.Pedido;
 import br.com.alura.loja.modelo.Produto;
 import br.com.alura.loja.util.JPAUtil;
-import br.com.alura.loja.vo.RelatorioDeVendasVO;
 
-public class CadastroDePedido {
+public class PerformanceConsultas {
 
 	public static void main(String[] args) {
 		popularBancoDeDados();
+		cadastraPedido();
 		EntityManager em = JPAUtil.getEntityManager();
-		ProdutoDao pDao = new ProdutoDao(em);
-		Produto prod1 = pDao.buscarPorId(1l);
-		Produto prod2 = pDao.buscarPorId(2l);
-		Produto prod3 = pDao.buscarPorId(3l);
-		
-		ClienteDao cliDao = new ClienteDao(em);
-		Cliente cli = cliDao.buscarPorId(1l);
-
-		em.getTransaction().begin();
-		
-		Pedido p = new Pedido(cli);
-		p.adicionarItem(new ItemPedido(10, p, prod1));
-		p.adicionarItem(new ItemPedido(40, p, prod2));
-
-		Pedido p2 = new Pedido(cli);
-		p2.adicionarItem(new ItemPedido(2, p2, prod3));
-		
-		PedidoDao pedDao = new PedidoDao(em);
-		pedDao.cadastrar(p);
-		pedDao.cadastrar(p2);
-		
-		em.getTransaction().commit();
-		
-		BigDecimal totalVendido = pedDao.valorTotalVendido();
-		System.out.println("Valor total: " + totalVendido);
-		
-		List<RelatorioDeVendasVO> relatorio = pedDao.relatorioDeVendas();
-		relatorio.forEach(System.out::println);
+		Pedido pedido = em.find(Pedido.class, 1l);
+		System.out.println(pedido.getItens().size());
 	}
 	
 	private static void popularBancoDeDados() {
@@ -80,6 +53,34 @@ public class CadastroDePedido {
 		pDao.cadastrar(p1);
 		pDao.cadastrar(p2);
 		pDao.cadastrar(p3);
+		
+		em.getTransaction().commit();
+		em.close();
+		
+	}
+
+	private static void cadastraPedido() {
+		EntityManager em = JPAUtil.getEntityManager();
+		ClienteDao cliDao = new ClienteDao(em);
+		Cliente cli = cliDao.buscarPorId(1l);
+		
+		ProdutoDao pDao = new ProdutoDao(em);
+		Produto prod1 = pDao.buscarPorId(1l);
+		Produto prod2 = pDao.buscarPorId(2l);
+		Produto prod3 = pDao.buscarPorId(3l);
+
+		em.getTransaction().begin();
+		
+		Pedido ped1 = new Pedido(cli);
+		ped1.adicionarItem(new ItemPedido(10, ped1, prod1));
+		ped1.adicionarItem(new ItemPedido(40, ped1, prod2));
+
+		Pedido ped2 = new Pedido(cli);
+		ped2.adicionarItem(new ItemPedido(2, ped2, prod3));
+		
+		PedidoDao pedDao = new PedidoDao(em);
+		pedDao.cadastrar(ped1);
+		pedDao.cadastrar(ped2);
 		
 		em.getTransaction().commit();
 		em.close();
