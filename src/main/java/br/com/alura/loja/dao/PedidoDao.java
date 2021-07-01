@@ -38,4 +38,10 @@ public class PedidoDao {
 		return em.createQuery(jpql, RelatorioDeVendasVO.class).getResultList();
 	}
 
+	public Pedido buscarPedidoComCliente(Long id) {
+		//join fetch desabilita a referencia tipo LAZY e faz uma busca do tipo EAGER
+		return em.createQuery(" SELECT p FROM Pedido p JOIN FETCH p.cliente WHERE p.id = :id", Pedido.class)
+				.setParameter("id", id)
+				.getSingleResult();
+	}
 }
